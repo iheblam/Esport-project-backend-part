@@ -1,0 +1,171 @@
+1)npm init //create package.json modules in the project folder and bring the necessary libraries
+2)create js file 
+3)to run the project in cmd type(node file_name.js)
+note: after displaying the result of the server the server close automaticlly
+4) npm install express // to make the server open until i want to close it(node module added) //express was added in the package.json
+5)// steps to configure the express 
+const express=require('express');//import express
+  const app=express();//heritate value for express
+  app.listen(3000,()=>{                //port and fucntion to execute instantly after lunching the server
+    console.log("server work!!")
+
+  })
+  //the server still open after executing the server code
+  
+6) 4 types of request:
+  .get
+  .post
+  .update
+  .delete
+
+7) to make a request we use app of  the express then choose the request type:
+note: each request take 2 parameter 
+exmple: app.post('/add',()=>{ 
+    console.log("add work ");
+
+});
+
+app.get('/getall',()=>{
+
+    console.log("get work")
+})
+
+app.put('/update',()=>{
+    console.log("update work");
+})
+
+app.delete("/delete",()=>{
+    console.log("delete work");
+})
+
+8) connecting to a databse (mongodb)
+.create folder config
+.add connect.js file 
+.install mongoose librarie(npm install mongoose)
+.check if mongoose added to the package.json
+
+1-import mongoose : const mongoose=require('mongoose');
+2-mongoose.connect('mongodb://127.0.0.1:27017/ecommerce')//datasbe link
+note:- if the databse does not exist mongo db create it automaticlly
+- mongo db always work on this url(mongodb://127.0.0.1:27017)
+
+9) creating modules:
+-create folder modules inside model  create file user (exemple)
+-inside user.js create  import mongoose(const mongoose=require("mongouse"))
+-create user model(const User = mongoose.model("User", {
+  name: { type: string },
+  lastname: { type: string },
+  age: { typeNumber },
+});)
+-export the user file as module named User(module.exports=User;)
+10)sending data from front end to backend testing it using postman by creating a json file matching the exact attribute of the user
+-app.use(express.json()) //adding this make the application works with json format to  get data 
+-import the user with require (const User=require('./models/user'))
+-app.post('/add',(req,res)=>{  
+    data=req.body;  //get the data sended from front end
+    console.log(data);
+    usr =new User(data); //affecting data to to usr
+    usr.save()           // save data in the database
+    .then((saveduser)=>{  //check the saved data
+        res.send(saveduser)
+    })
+    .catch((err)=>{
+        res.send(err)
+    })
+
+});
+
+11) getting users data from database using get :
+app.get("/getall", (req, res) => {
+  User.find() // this function based on mongoose librarie
+  .then((users) => {
+    res.send(users);
+  })
+  .catch((err)=>{
+    console.log(err)
+  })
+});
+
+12) getting data by id :
+-in postman selecting get request then in the end of the url after /getbyid add /{id of the user}
+-then create the getbyid
+
+-app.get('/getbyid/:id',(req,res)=>{            //:id is the parametere of the request
+    myid=req.params.id;                         // getting the id sent in the parameter
+    User.findById(myid)
+    .then((user)=>{
+        res.send(user)
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+
+});
+
+13) deleting from database: (require id)
+app.delete("/delete/:id", (req,res) => {
+    myid=req.params.id;
+    User.findByIdAndDelete(myid)
+    .then((deleteduser)=>{
+        res.send(deleteduser)
+    })
+    .catch((err)=>{
+        console.log("err")
+    })
+
+});
+
+14)updating user from databse(require id)
+app.put("/update/:id", (req,res) => {
+    id=req.params.id;
+    newdata=req.body     //retreiving data from the request body
+    User.findByIdAndUpdate({_id:id}, newdata)    //updating the user with the data sent from the request 
+    .then((updateduser)=>{
+        res.send(updateduser)
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+  
+});
+
+15)drawbacks of listing the requset is it may take 2000 line which the code become unreadble and the server become slow 
+solution create routing for each model and the request become in each route for each model
+
+-create folder routes 
+-create user.js and product.js 
+-import express then express.Router()
+-import User and product from model 
+- change crud reqest with router.get
+-in server.js import the 2 routes created prevouisly 
+- add for each route app.use("/product",ProductRoute) 
+
+16) creating account for user with crypted password:
+-npm install bcrypt
+-import bcrypt
+-router.post("/register", async (req, res) => {
+  data = req.body;
+  usr = new User(data);
+  salt = bcrypt.genSaltSync(10);
+  cryptedpass = await bcrypt.hashSync(data.password, salt);
+  usr.password=cryptedpass
+  usr.save()
+    .then((saveduser) => {
+      res.send(saveduser);
+    })
+    .catch((err) => {
+      res.send(err);
+    });
+});
+
+17)login using jwt(json web token)
+-install jwt (npm i jsonwebtoken)
+
+==================>libraries used in this course:
+-express
+-mongoose
+-bcrypt
+-jsonwebtoken
+
+
+
